@@ -1,0 +1,180 @@
+                background:"rgba(255,255,255,0.05)",
+                border:"1px solid rgba(255,255,255,0.15)", color:T.paper }}>
+              {it.action}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   AI CHAT MODAL
+════════════════════════════════════════════════ */
+function ChatModal({ onClose, role, stressResult }) {
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+  const isOfficer = role === "officer";
+
+  const sysPrompt = isOfficer
+    ? "You are an expert AI Welfare Advisor for CAPF (Central Armed Police Forces) officers in India. Help welfare officers understand stress patterns, plan interventions, and support battalion mental health. Be practical, evidence-based, and sensitive to the military context. Keep responses concise and actionable."
+    : `You are a compassionate AI Health Advisor for CAPF personnel in India. ${stressResult ? `The person's current stress score is ${stressResult.score}/100 (${stressResult.risk} risk level).` : ""} Provide warm, practical, culturally sensitive advice. Be empathetic, never clinical. Always recommend speaking to a Welfare Officer or Medical Officer for serious concerns. Keep responses to 2-3 short paragraphs.`;
+
+  const welcome = isOfficer
+    ? "Hello, Officer. I am your AI Welfare Advisor. Ask me about stress indicators, intervention strategies, or how to support your unit's mental health."
+    : `Jai Hind. I am your AI Health Advisor — completely private and confidential. ${stressResult ? `I can see your stress level is ${stressResult.risk} (${stressResult.score}/100). ` : ""}Tell me how you are feeling and I will help.`;
+
+  useEffect(() => { setMsgs([{ role:"ai", text: welcome }]); }, []);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:"smooth" }); }, [msgs, loading]);
+
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput("");
+    setMsgs(p => [...p, { role:"user", text: userMsg }]);
+    setLoading(true);
+
+    try {
+      const history = msgs.slice(1).map(m => ({
+        role: m.role === "user" ? "user" : "assistant",
+        content: m.text
+      }));
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+          model:"claude-sonnet-4-6",
+          max_tokens:1000,
+          system: sysPrompt,
+          messages: [...history, { role:"user", content: userMsg }]
+        })
+      });
+      const d = await res.json();
+      const reply = d.content?.[0]?.text || getOfflineReply(stressResult?.risk);
+      setMsgs(p => [...p, { role:"ai", text: reply }]);
+    } catch {
+      setMsgs(p => [...p, { role:"ai", text: getOfflineReply(stressResult?.risk) }]);
+    }
+    setLoading(false);
+  };
+
+  const getOfflineReply = (risk) => {
+    if (risk === "High") return "You are carrying a very heavy load right now. Please speak to your Welfare Officer or Medical Officer today. You can also call the CAPF helpline 1800-XXX-XXXX which is confidential and available 24 hours a day. You do not have to carry this alone.";
+    if (risk === "Medium") return "Thank you for checking in. I would recommend protecting your sleep time, taking short breaks during duty, and connecting with a trusted colleague. Your Welfare Officer is also available if you want to talk.";
+    return "You are doing well. Keep maintaining your healthy habits — sleep, exercise, and staying connected with your unit.";
+  };
+
+  const quickQs = isOfficer
+    ? ["What are early signs of burnout?","How do I handle a high-risk case?","Best interventions for long deployments?"]
+    : ["I have been feeling very stressed","I cannot sleep well lately","I miss my family a lot"];
+
+  const bg = isOfficer ? T.cream : "#0F1825";
+  const textMain = isOfficer ? T.ink : T.paper;
+  const border = isOfficer ? "#DED6BC" : "rgba(255,255,255,0.08)";
+  const msgBg = isOfficer ? "white" : "rgba(255,255,255,0.06)";
+  const inputBg = isOfficer ? "#F0EDE0" : "rgba(255,255,255,0.06)";
+  const inputBorder = isOfficer ? "#C9C2A6" : "rgba(255,255,255,0.12)";
+  const userMsgBg = isOfficer
+    ? `linear-gradient(135deg,${T.olive},${T.olive2})`
+    : "linear-gradient(135deg,#1B4F72,#2980B9)";
+  const sendBg = isOfficer
+    ? `linear-gradient(135deg,${T.olive},${T.brass})`
+    : "linear-gradient(135deg,#1B4F72,#2980B9)";
+
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.72)",
+      backdropFilter:"blur(6px)", zIndex:200,
+      display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
+      <div style={{ width:"100%", maxWidth:480, background:bg, borderRadius:"16px 16px 0 0",
+        border:`1px solid ${border}`, maxHeight:"85vh",
+        display:"flex", flexDirection:"column" }}>
+
+        <div style={{ padding:"16px 20px", borderBottom:`1px solid ${border}`,
+          display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ width:36, height:36, borderRadius:"50%",
+            background:"linear-gradient(135deg,#1B4F72,#2980B9)",
+            display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <Bot size={18} color="white"/>
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ ...H, color:textMain, fontWeight:600, fontSize:15 }}>AI Health Advisor</div>
+            <div style={{ fontSize:11, color: isOfficer ? "#5A5138" : T.slate }}>
+              Powered by Claude &nbsp;·&nbsp; Private &amp; Encrypted
+            </div>
+          </div>
+          <button onClick={onClose} style={{ color: isOfficer ? "#5A5138" : T.slate }}><X size={20}/></button>
+        </div>
+
+        <div style={{ flex:1, overflow:"auto", padding:16,
+          display:"flex", flexDirection:"column", gap:10 }}>
+          {msgs.map((m, i) => (
+            <div key={i} style={{ maxWidth:"85%", alignSelf: m.role === "user" ? "flex-end" : "flex-start" }}>
+              <div style={{ padding:"11px 14px", borderRadius:12, fontSize:13, lineHeight:1.65,
+                background: m.role === "user" ? userMsgBg : msgBg,
+                color: m.role === "user" ? "white" : textMain,
+                border: m.role === "user" ? "none" : `1px solid ${border}` }}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div style={{ maxWidth:"85%", alignSelf:"flex-start" }}>
+              <div style={{ padding:"11px 14px", borderRadius:12,
+                background:msgBg, border:`1px solid ${border}`,
+                display:"flex", gap:8, alignItems:"center" }}>
+                <Spin color={isOfficer ? T.olive2 : "#5DADE2"}/>
+                <span style={{ fontSize:12, color: isOfficer ? "#5A5138" : T.slate }}>Thinking...</span>
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef}/>
+        </div>
+
+        {msgs.length <= 1 && (
+          <div style={{ padding:"0 16px 8px", display:"flex", gap:6, flexWrap:"wrap" }}>
+            {quickQs.map((q, i) => (
+              <button key={i} onClick={() => setInput(q)}
+                style={{ padding:"5px 10px", borderRadius:20, fontSize:11,
+                  background: isOfficer ? "rgba(184,146,47,0.1)" : "rgba(41,128,185,0.15)",
+                  border:`1px solid ${isOfficer ? T.brass : "rgba(41,128,185,0.4)"}`,
+                  color: isOfficer ? T.brass : "#5DADE2" }}>
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div style={{ padding:"12px 16px", borderTop:`1px solid ${border}`,
+          display:"flex", gap:10 }}>
+          <input value={input} onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && send()}
+            placeholder="Type your message..."
+            style={{ flex:1, padding:"10px 14px", borderRadius:8, fontSize:13,
+              background:inputBg, border:`1px solid ${inputBorder}`, color:textMain }}/>
+          <button onClick={send} disabled={loading || !input.trim()}
+            style={{ width:40, height:40, borderRadius:8, flexShrink:0,
+              background:sendBg,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              opacity: loading || !input.trim() ? 0.5 : 1 }}>
+            <Send size={16} color="white"/>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   UTILITY
+════════════════════════════════════════════════ */
+function Spin({ color="#B8922F" }) {
+  return (
+    <div style={{ width:16, height:16, flexShrink:0,
+      border:"2px solid rgba(255,255,255,0.15)",
+      borderTopColor:color, borderRadius:"50%",
+      animation:"spin 0.7s linear infinite" }}/>
+  );
+}

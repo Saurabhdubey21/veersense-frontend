@@ -1162,20 +1162,23 @@ function ChatModal({ onClose, role, stressResult }) {
         role: m.role === "user" ? "user" : "assistant",
         content: m.text
       }));
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("https://veersense-backend.onrender.com/chat", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
-          model:"claude-sonnet-4-6",
-          max_tokens:1000,
+          role,
           system: sysPrompt,
-          messages: [...history, { role:"user", content: userMsg }]
+          message: userMsg,
+          history,
+          stressResult
         })
       });
+      if (!res.ok) throw new Error(`Backend responded ${res.status}`);
       const d = await res.json();
-      const reply = d.content?.[0]?.text || getOfflineReply(stressResult?.risk);
+      const reply = d.reply || d.message || d.text || d.content?.[0]?.text || getOfflineReply(stressResult?.risk);
       setMsgs(p => [...p, { role:"ai", text: reply }]);
-    } catch {
+    } catch (err) {
+      console.error("Chat backend error:", err);
       setMsgs(p => [...p, { role:"ai", text: getOfflineReply(stressResult?.risk) }]);
     }
     setLoading(false);
