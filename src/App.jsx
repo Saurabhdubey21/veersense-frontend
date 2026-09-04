@@ -623,7 +623,7 @@ function OPersonnel({ personnel }) {
           <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
             <thead>
               <tr style={{ background:"#f9fafb" }}>
-                {["ID","Name","Service ID","Rank","Department"].map(h => (
+                {["ID","Service No","Rank","Unit","Risk Level","Stress Score"].map(h => (
                   <th key={h} style={{ padding:"10px", textAlign:"left", fontSize:10,
                     color:"#9ca3af", fontWeight:600, borderBottom:"1px solid #f3f4f6" }}>{h}</th>
                 ))}
@@ -634,15 +634,19 @@ function OPersonnel({ personnel }) {
                 personnel.map((p) => (
                   <tr key={p.id} style={{ borderBottom:"1px solid #f9fafb" }}>
                     <td style={{ padding:"10px", fontFamily:"monospace", fontSize:11, color:"#6b7280" }}>{p.id}</td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.name}</td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.service_id}</td>
+                    <td style={{ padding:"10px", color:T.ink }}>{p.service_no}</td>
                     <td style={{ padding:"10px", color:T.ink }}>{p.rank}</td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.department}</td>
+                    <td style={{ padding:"10px", color:T.ink }}>{p.unit}</td>
+                    <td style={{ padding:"10px", fontWeight:600,
+                      color: p.risk_level === "High" ? T.crimsonL : p.risk_level === "Medium" ? "#D4870A" : T.olive2 }}>
+                      {p.risk_level}
+                    </td>
+                    <td style={{ padding:"10px", color:T.ink }}>{p.stress_score}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} style={{ padding:"20px", textAlign:"center", color:"#9ca3af" }}>
+                  <td colSpan={6} style={{ padding:"20px", textAlign:"center", color:"#9ca3af" }}>
                     No personnel records found.
                   </td>
                 </tr>
