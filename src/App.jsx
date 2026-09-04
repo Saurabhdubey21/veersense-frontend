@@ -1170,16 +1170,17 @@ function ChatModal({ onClose, role, stressResult }) {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
-          role,
-          system: sysPrompt,
-          message: userMsg,
-          history,
-          stressResult
+          messages: [...history, { role:"user", content: userMsg }],
+          context: {
+            role,
+            risk: stressResult?.risk,
+            score: stressResult?.score
+          }
         })
       });
       if (!res.ok) throw new Error(`Backend responded ${res.status}`);
       const d = await res.json();
-      const reply = d.reply || d.message || d.text || d.content?.[0]?.text || getOfflineReply(stressResult?.risk);
+      const reply = d.reply || getOfflineReply(stressResult?.risk);
       setMsgs(p => [...p, { role:"ai", text: reply }]);
     } catch (err) {
       console.error("Chat backend error:", err);
