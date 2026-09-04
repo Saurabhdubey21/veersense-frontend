@@ -849,7 +849,7 @@ function PersonnelDash({ go, data }) {
       </div>
 
       <div style={{ flex:1, overflow:"auto" }}>
-        {tab === "home"     && <PHome data={data} onAssess={() => setTab("assess")} result={stressResult}/>}
+        {tab === "home"     && <PHome data={data} onAssess={() => setTab("assess")} result={stressResult} onChat={() => setChatOpen(true)}/>}
         {tab === "assess"   && <PAssess onResult={r => { setStressResult(r); setTab("home"); }}/>}
         {tab === "wellness" && <PWellness/>}
         {tab === "support"  && <PSupport onChat={() => setChatOpen(true)}/>}
@@ -869,7 +869,7 @@ function PersonnelDash({ go, data }) {
   );
 }
 
-function PHome({ data, onAssess, result }) {
+function PHome({ data, onAssess, result, onChat }) {
   const score = result?.score || 28;
   const risk  = result?.risk  || "Low";
   const color = risk === "High" ? T.crimsonL : risk === "Medium" ? "#D4870A" : T.olive2;
@@ -934,16 +934,16 @@ function PHome({ data, onAssess, result }) {
           <Compass size={14}/> Get Support Now
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-          <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)",
-            borderRadius:8, padding:12 }}>
+          <div onClick={() => alert("Appointment request sent to your unit Medical Officer.")} style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)",
+            borderRadius:8, padding:12, cursor:"pointer" }}>
             <Stethoscope size={18} color={T.brass}/>
             <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:12, marginTop:8, marginBottom:2 }}>
               Talk to Your Doctor
             </div>
             <div style={{ fontSize:10, color:T.slate }}>Confidential, in-person</div>
           </div>
-          <div style={{ background:"rgba(41,128,185,0.1)", border:"1px solid rgba(41,128,185,0.3)",
-            borderRadius:8, padding:12 }}>
+          <div onClick={onChat} style={{ background:"rgba(41,128,185,0.1)", border:"1px solid rgba(41,128,185,0.3)",
+            borderRadius:8, padding:12, cursor:"pointer" }}>
             <Bot size={18} color="#5DADE2"/>
             <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:12, marginTop:8, marginBottom:2 }}>
               AI Health Advisor
@@ -1244,7 +1244,7 @@ function ChatModal({ onClose, role, stressResult }) {
                 background: m.role === "user" ? userMsgBg : msgBg,
                 color: m.role === "user" ? "white" : textMain,
                 border: m.role === "user" ? "none" : `1px solid ${border}` }}>
-                {m.text}
+                {m.role === "user" ? m.text : <MarkdownText text={m.text} />}
               </div>
             </div>
           ))}
@@ -1305,4 +1305,71 @@ function Spin({ color="#B8922F" }) {
       borderTopColor:color, borderRadius:"50%",
       animation:"spin 0.7s linear infinite" }}/>
   );
+}
+function renderInlineBold(text, keyPrefix) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={`${keyPrefix}-b${i}`}>{part.slice(2, -2)}</strong>;
+    }
+    return <span key={`${keyPrefix}-t${i}`}>{part}</span>;
+  });
+}
+
+function isTableSeparator(line) {
+  return /^\|?[\s:|-]+\|?$/.test(line.trim()) && line.includes("-");
+}
+
+function parseTableRow(line) {
+  return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(c => c.trim());
+}
+
+function MarkdownText({ text }) {
+  if (!text) return null;
+  const lines = text.split("\n");
+  const blocks = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.includes("|") && lines[i + 1] && isTableSeparator(lines[i + 1])) {
+      const header = parseTableRow(line);
+      i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].includes("|")) { rows.push(parseTableRow(lines[i])); i++; }
+      blocks.push(
+        <div key={`tbl-${blocks.length}`} style={{ overflowX:"auto", margin:"8px 0" }}>
+          <table style={{ borderCollapse:"collapse", width:"100%", fontSize:12 }}>
+            <thead><tr>{header.map((h, hi) => (
+              <th key={hi} style={{ textAlign:"left", padding:"6px 8px", borderBottom:"1.5px solid rgba(128,128,128,0.4)", fontWeight:700 }}>{h}</th>
+            ))}</tr></thead>
+            <tbody>{rows.map((r, ri) => (
+              <tr key={ri}>{r.map((cell, ci) => (
+                <td key={ci} style={{ padding:"6px 8px", borderBottom:"1px solid rgba(128,128,128,0.15)", verticalAlign:"top" }}>
+                  {renderInlineBold(cell, `${ri}-${ci}`)}
+                </td>
+              ))}</tr>
+            ))}</tbody>
+          </table>
+        </div>
+      );
+      continue;
+    }
+    if (/^[-*]\s+/.test(line.trim())) {
+      const items = [];
+      while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^[-*]\s+/, "")); i++; }
+      blocks.push(
+        <ul key={`ul-${blocks.length}`} style={{ margin:"6px 0", paddingLeft:18 }}>
+          {items.map((it, ii) => <li key={ii} style={{ marginBottom:3 }}>{renderInlineBold(it, `li-${ii}`)}</li>)}
+        </ul>
+      );
+      continue;
+    }
+    if (line.trim() === "") {
+      blocks.push(<div key={`sp-${blocks.length}`} style={{ height:6 }} />);
+      i++; continue;
+    }
+    blocks.push(<div key={`p-${blocks.length}`} style={{ marginBottom:2 }}>{renderInlineBold(line, `p-${blocks.length}`)}</div>);
+    i++;
+  }
+  return <div>{blocks}</div>;
 }
