@@ -7,6 +7,7 @@ import {
   Heart, Moon, Activity, Target, MessageCircle,
   Phone, FileText, BarChart2, Eye, EyeOff, Star, Zap
 } from "lucide-react";
+import FaceWellness from "./FaceWellness";
 
 /* ── Design tokens ── */
 const T = {
@@ -802,6 +803,7 @@ function OAlerts() {
 function PersonnelDash({ go, data }) {
   const [tab, setTab] = useState("home");
   const [chatOpen, setChatOpen] = useState(false);
+  const [faceOpen, setFaceOpen] = useState(false);
   const [stressResult, setStressResult] = useState(null);
 
   const tabs = [
@@ -849,7 +851,7 @@ function PersonnelDash({ go, data }) {
       </div>
 
       <div style={{ flex:1, overflow:"auto" }}>
-        {tab === "home"     && <PHome data={data} onAssess={() => setTab("assess")} result={stressResult} onChat={() => setChatOpen(true)}/>}
+        {tab === "home"     && <PHome data={data} onAssess={() => setTab("assess")} result={stressResult} onChat={() => setChatOpen(true)} onFaceScan={() => setFaceOpen(true)}/>}
         {tab === "assess"   && <PAssess onResult={r => { setStressResult(r); setTab("home"); }}/>}
         {tab === "wellness" && <PWellness/>}
         {tab === "support"  && <PSupport onChat={() => setChatOpen(true)}/>}
@@ -865,11 +867,12 @@ function PersonnelDash({ go, data }) {
       </button>
 
       {chatOpen && <ChatModal onClose={() => setChatOpen(false)} role="personnel" stressResult={stressResult}/>}
+      {faceOpen && <FaceWellness onClose={() => setFaceOpen(false)} onResult={r => { setStressResult(r); setFaceOpen(false); }}/>}
     </div>
   );
 }
 
-function PHome({ data, onAssess, result, onChat }) {
+function PHome({ data, onAssess, result, onChat, onFaceScan }) {
   const score = result?.score || 28;
   const risk  = result?.risk  || "Low";
   const color = risk === "High" ? T.crimsonL : risk === "Medium" ? "#D4870A" : T.olive2;
@@ -933,7 +936,7 @@ function PHome({ data, onAssess, result, onChat }) {
           display:"flex", alignItems:"center", gap:6 }}>
           <Compass size={14}/> Get Support Now
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8 }}>
           <div onClick={() => alert("Appointment request sent to your unit Medical Officer.")} style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)",
             borderRadius:8, padding:12, cursor:"pointer" }}>
             <Stethoscope size={18} color={T.brass}/>
@@ -951,6 +954,13 @@ function PHome({ data, onAssess, result, onChat }) {
             <div style={{ fontSize:10, color:T.slate }}>Real-time, private chat</div>
           </div>
         </div>
+        <button onClick={onFaceScan}
+          style={{ width:"100%", padding:"14px", borderRadius:8, marginBottom:0,
+            background:"linear-gradient(135deg,#1B4F72,#4F6B4A)",
+            border:"none", color:"white", fontSize:13, fontWeight:600, cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+          🧠 Face Wellness Scan (AI)
+        </button>
       </div>
     </div>
   );
