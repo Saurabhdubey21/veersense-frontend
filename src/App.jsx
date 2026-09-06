@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import FaceWellness from "./FaceWellness";
 import {
   Shield, ShieldCheck, User, ArrowLeft, Bell,
   ChevronRight, Lock, Bot, Stethoscope, TrendingUp,
@@ -7,9 +8,7 @@ import {
   Heart, Moon, Activity, Target, MessageCircle,
   Phone, FileText, BarChart2, Eye, EyeOff, Star, Zap
 } from "lucide-react";
-import FaceWellness from "./FaceWellness";
 
-/* ── Design tokens ── */
 const T = {
   ink:"#10192B", inkL:"#1B2B40", olive:"#414A38", olive2:"#4F6B4A",
   brass:"#B8922F", brass2:"#D4A83A", paper:"#EDE9DD", paperD:"#D8D2C0",
@@ -40,7 +39,6 @@ function useFonts() {
   }, []);
 }
 
-/* ── Hero SVG illustration ── */
 function HeroArt() {
   return (
     <svg viewBox="0 0 480 820" preserveAspectRatio="xMidYMid slice"
@@ -59,13 +57,10 @@ function HeroArt() {
           <stop offset="100%" stopColor="#10192B" stopOpacity="0"/>
         </radialGradient>
       </defs>
-
       <rect width="480" height="820" fill="#0B1220"/>
       <rect width="480" height="820" fill="url(#glow)"/>
-
       <circle cx="380" cy="80" r="24" fill="#EDE9DD" opacity="0.09"/>
       <circle cx="368" cy="74" r="18" fill="#0B1220" opacity="0.5"/>
-
       {[...Array(40)].map((_, i) => (
         <circle key={i}
           cx={(i * 137 + 53) % 480}
@@ -74,12 +69,10 @@ function HeroArt() {
           fill="#EDE9DD"
           opacity={0.2 + (i % 4) * 0.1}/>
       ))}
-
       <path d="M0 480 L60 380 L120 430 L180 340 L240 400 L300 310 L360 370 L420 300 L480 350 L480 820 L0 820 Z"
         fill="#0D1825" opacity="0.9"/>
       <path d="M0 520 L80 440 L150 480 L220 400 L280 450 L340 380 L400 430 L480 390 L480 820 L0 820 Z"
         fill="#111E2E" opacity="0.85"/>
-
       <g opacity="0.42">
         <path d="M40 60 C140 30 300 50 460 20 L460 105 C300 135 140 110 40 140 Z" fill="url(#saff)"/>
         <path d="M40 140 C140 110 300 135 460 105 L460 190 C300 210 140 190 40 215 Z" fill="#DED3B2"/>
@@ -96,7 +89,6 @@ function HeroArt() {
         </g>
         <rect x="38" y="55" width="3" height="260" fill="#8A7A50" opacity="0.6"/>
       </g>
-
       <g fill="#0B1220" opacity="0.85">
         <rect x="20" y="550" width="50" height="200"/>
         <rect x="10" y="545" width="70" height="12"/>
@@ -104,9 +96,7 @@ function HeroArt() {
         <circle cx="45" cy="500" r="5" fill="#B8922F" opacity="0.7"/>
         <rect x="44" y="460" width="2" height="40" fill="#8A7A50" opacity="0.5"/>
       </g>
-
       <line x1="80" y1="680" x2="480" y2="650" stroke="#2C3E50" strokeWidth="1.5" strokeDasharray="6 4"/>
-
       <g transform="translate(200,480)" fill="#0B1220" opacity="0.95">
         <ellipse cx="40" cy="8" rx="22" ry="14"/>
         <rect x="18" y="12" width="44" height="6" rx="1"/>
@@ -120,7 +110,6 @@ function HeroArt() {
         <rect x="14" y="138" width="18" height="8" rx="2"/>
         <rect x="44" y="138" width="16" height="8" rx="2"/>
       </g>
-
       {[0, 1, 2, 3, 4].map(i => (
         <g key={i}
           transform={`translate(${58 + i * 30},${590 - i * 8}) scale(${0.38 - i * 0.03})`}
@@ -132,42 +121,29 @@ function HeroArt() {
           <path d="M28 90 L18 140 L28 140 L38 110 L42 140 L55 140 L48 90 Z"/>
         </g>
       ))}
-
       <rect x="0" y="730" width="480" height="90" fill="#0B1220" opacity="0.85"/>
     </svg>
   );
 }
 
-/* ════════════════════════════════════════════════
-   MAIN SHELL
-════════════════════════════════════════════════ */
 export default function VeerSense() {
-    const [backendStatus, setBackendStatus] = useState("Checking...");
-    const [personnel, setPersonnel] = useState([]);
+  const [backendStatus, setBackendStatus] = useState("Checking...");
+  const [personnel, setPersonnel] = useState([]);
   useFonts();
   const [screen, setScreen] = useState("welcome");
   const [officerData, setOfficerData] = useState(null);
   const [personnelData, setPersonnelData] = useState(null);
 
-    useEffect(() => {
-  fetch("https://veersense-backend.onrender.com/api/status")
-    .then((response) => response.json())
-    .then((data) => {
-      setBackendStatus(data.message);
-    })
-    .catch(() => {
-      setBackendStatus("Backend not connected");
-    });
-
-  fetch("https://veersense-backend.onrender.com/api/personnel")
-    .then((response) => response.json())
-    .then((data) => {
-      setPersonnel(data);
-    })
-    .catch((error) => {
-      console.error("Error fetching personnel:", error);
-    });
-}, []);
+  useEffect(() => {
+    fetch("https://veersense-backend.onrender.com/api/status")
+      .then(r => r.json())
+      .then(d => setBackendStatus(d.message))
+      .catch(() => setBackendStatus("Backend not connected"));
+    fetch("https://veersense-backend.onrender.com/api/personnel")
+      .then(r => r.json())
+      .then(d => setPersonnel(d))
+      .catch(() => {});
+  }, []);
 
   const go = (s, data) => {
     if (s === "officer-dash" && data) setOfficerData(data);
@@ -178,87 +154,59 @@ export default function VeerSense() {
   return (
     <div style={{ ...S, background:"#0B1220", minHeight:"100vh",
       display:"flex", alignItems:"center", justifyContent:"center", padding:"16px" }}>
-        <div style={{
-  position: "fixed",
-  bottom: 10,
-  right: 10,
-  padding: "8px 12px",
-  background: "#414A38",
-  color: "white",
-  borderRadius: 8,
-  fontSize: 12,
-  zIndex: 9999
-}}>
-  Backend: {backendStatus}
-</div>
+      <div style={{ position:"fixed", bottom:10, right:10, padding:"8px 12px",
+        background:"#414A38", color:"white", borderRadius:8, fontSize:12, zIndex:9999 }}>
+        Backend: {backendStatus}
+      </div>
       <div style={{ width:"100%", maxWidth:480, borderRadius:4, overflow:"hidden",
         boxShadow:"0 32px 80px rgba(0,0,0,0.6)",
         border:"1px solid rgba(255,255,255,0.07)", minHeight:820 }}>
-        {screen === "welcome"          && <Welcome go={go}/>}
-        {screen === "officer-login"    && <OfficerLogin go={go}/>}
-        {screen === "personnel-login"  && <PersonnelLogin go={go}/>}
-        {screen === "officer-dash" && (
-  <OfficerDash
-    go={go}
-    data={officerData}
-    personnel={personnel}
-  />
-)}
-        {screen === "personnel-dash"   && <PersonnelDash go={go} data={personnelData}/>}
+        {screen === "welcome"         && <Welcome go={go}/>}
+        {screen === "officer-login"   && <OfficerLogin go={go}/>}
+        {screen === "personnel-login" && <PersonnelLogin go={go}/>}
+        {screen === "officer-dash"    && <OfficerDash go={go} data={officerData} personnel={personnel}/>}
+        {screen === "personnel-dash"  && <PersonnelDash go={go} data={personnelData}/>}
       </div>
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════
-   WELCOME SCREEN
-════════════════════════════════════════════════ */
 function Welcome({ go }) {
   return (
     <div style={{ position:"relative", minHeight:820, overflow:"hidden" }}>
       <HeroArt/>
       <div style={{ position:"absolute", inset:0,
         background:"linear-gradient(180deg,rgba(11,18,32,0.88) 0%,rgba(11,18,32,0.18) 28%,rgba(11,18,32,0.32) 62%,rgba(11,18,32,0.97) 100%)" }}/>
-
       <div style={{ position:"relative", display:"flex", flexDirection:"column",
         alignItems:"center", padding:"52px 28px 44px", minHeight:820 }}>
-
         <div style={{ width:90, height:90, borderRadius:"50%",
           border:"1.5px solid rgba(184,146,47,0.65)",
           background:"rgba(184,146,47,0.07)",
           display:"flex", alignItems:"center", justifyContent:"center", marginBottom:18 }}>
           <Shield size={38} strokeWidth={1.3} color={T.brass}/>
         </div>
-
-        <p style={{ ...S, fontSize:10, letterSpacing:"0.2em", color:T.slate,
-          marginBottom:10, textAlign:"center" }}>
+        <p style={{ ...S, fontSize:10, letterSpacing:"0.2em", color:T.slate, marginBottom:10, textAlign:"center" }}>
           MINISTRY OF HOME AFFAIRS &nbsp;·&nbsp; CAPF WELFARE DIVISION
         </p>
-
         <h1 style={{ ...H, fontSize:54, fontWeight:700, color:T.paper,
           letterSpacing:"-1px", lineHeight:1, marginBottom:10, textAlign:"center" }}>
           VeerSense
         </h1>
-
         <p style={{ ...S, fontSize:13, color:"rgba(237,233,221,0.48)",
           textAlign:"center", maxWidth:300, lineHeight:1.65, marginBottom:10 }}>
           AI-powered predictive welfare monitoring for uniformed forces
         </p>
-
         <div style={{ display:"flex", alignItems:"center", gap:6,
           background:"rgba(184,146,47,0.1)", border:"1px solid rgba(184,146,47,0.3)",
           borderRadius:20, padding:"5px 14px", marginBottom:52 }}>
           <Star size={10} color={T.brass} fill={T.brass}/>
           <span style={{ fontSize:10, color:T.brass, letterSpacing:"0.15em" }}>SIH 2025 &nbsp;·&nbsp; PROBLEM SIH25186</span>
         </div>
-
         <div style={{ flex:1 }}/>
-
         <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:12 }}>
           <button onClick={() => go("officer-login")}
             style={{ width:"100%", display:"flex", alignItems:"center", gap:16,
-              padding:"18px 20px", borderRadius:6, textAlign:"left",
-              background:T.paper, border:"none" }}>
+              padding:"18px 20px", borderRadius:6, textAlign:"left", background:T.paper, border:"none" }}>
             <div style={{ width:44, height:44, borderRadius:8, flexShrink:0,
               background:`linear-gradient(135deg,${T.olive},${T.olive2})`,
               display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -274,12 +222,10 @@ function Welcome({ go }) {
             </div>
             <ChevronRight size={18} color="#8A7A50"/>
           </button>
-
           <button onClick={() => go("personnel-login")}
             style={{ width:"100%", display:"flex", alignItems:"center", gap:16,
               padding:"18px 20px", borderRadius:6, textAlign:"left",
-              background:"rgba(237,233,221,0.07)",
-              border:"1px solid rgba(184,146,47,0.25)" }}>
+              background:"rgba(237,233,221,0.07)", border:"1px solid rgba(184,146,47,0.25)" }}>
             <div style={{ width:44, height:44, borderRadius:8, flexShrink:0,
               background:"linear-gradient(135deg,#1B4F72,#2980B9)",
               display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -296,7 +242,6 @@ function Welcome({ go }) {
             <ChevronRight size={18} color={T.slate}/>
           </button>
         </div>
-
         <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:24 }}>
           <Lock size={11} color={T.slate}/>
           <span style={{ fontSize:11, color:"rgba(141,154,174,0.65)" }}>
@@ -308,9 +253,6 @@ function Welcome({ go }) {
   );
 }
 
-/* ════════════════════════════════════════════════
-   OFFICER LOGIN
-════════════════════════════════════════════════ */
 function OfficerLogin({ go }) {
   const [id, setId] = useState("");
   const [pass, setPass] = useState("");
@@ -367,9 +309,6 @@ function OfficerLogin({ go }) {
   );
 }
 
-/* ════════════════════════════════════════════════
-   PERSONNEL LOGIN
-════════════════════════════════════════════════ */
 function PersonnelLogin({ go }) {
   const [svc, setSvc] = useState("");
   const [rank, setRank] = useState("Constable");
@@ -447,19 +386,15 @@ function LF({ label, placeholder, type="text", value, onChange, suffix }) {
   );
 }
 
-/* ════════════════════════════════════════════════
-   OFFICER DASHBOARD
-════════════════════════════════════════════════ */
-function OfficerDash({ go, data ,personnel}) {
+function OfficerDash({ go, data, personnel }) {
   const [tab, setTab] = useState("overview");
   const [chatOpen, setChatOpen] = useState(false);
-  console.log("Officer Dashboard Personnel:", personnel);
 
   const tabs = [
-    { id:"overview",   icon:<BarChart2 size={15}/>,    label:"Overview" },
-    { id:"personnel",  icon:<Users size={15}/>,         label:"Personnel" },
-    { id:"assess",     icon:<Target size={15}/>,        label:"Assess" },
-    { id:"alerts",     icon:<Bell size={15}/>,          label:"Alerts" },
+    { id:"overview",  icon:<BarChart2 size={15}/>, label:"Overview" },
+    { id:"personnel", icon:<Users size={15}/>,     label:"Personnel" },
+    { id:"assess",    icon:<Target size={15}/>,    label:"Assess" },
+    { id:"alerts",    icon:<Bell size={15}/>,      label:"Alerts" },
   ];
 
   return (
@@ -478,41 +413,33 @@ function OfficerDash({ go, data ,personnel}) {
           </div>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <div style={{ width:8, height:8, borderRadius:"50%", background:"#4CAF50",
-            animation:"blink 2s infinite" }}/>
+          <div style={{ width:8, height:8, borderRadius:"50%", background:"#4CAF50", animation:"blink 2s infinite" }}/>
           <button onClick={() => go("welcome")} style={{ color:T.slate }}><LogOut size={16}/></button>
         </div>
       </div>
-
-      <div style={{ background:T.ink, display:"flex",
-        borderTop:"1px solid rgba(255,255,255,0.07)", padding:"0 4px" }}>
+      <div style={{ background:T.ink, display:"flex", borderTop:"1px solid rgba(255,255,255,0.07)", padding:"0 4px" }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{ flex:1, padding:"10px 4px", display:"flex", flexDirection:"column",
-              alignItems:"center", gap:3,
-              borderBottom:`2px solid ${tab === t.id ? T.brass : "transparent"}` }}>
+              alignItems:"center", gap:3, borderBottom:`2px solid ${tab === t.id ? T.brass : "transparent"}` }}>
             <span style={{ color: tab === t.id ? T.brass : T.slate }}>{t.icon}</span>
             <span style={{ fontSize:9, color: tab === t.id ? T.brass : T.slate }}>{t.label}</span>
           </button>
         ))}
       </div>
-
       <div style={{ flex:1, overflow:"auto" }}>
-        {tab === "overview"   && <OOverview/>}
-        {tab === "personnel"  && <OPersonnel personnel={personnel}/>}
-        {tab === "assess"     && <OAssess/>}
-        {tab === "alerts"     && <OAlerts/>}
+        {tab === "overview"  && <OOverview/>}
+        {tab === "personnel" && <OPersonnel personnel={personnel}/>}
+        {tab === "assess"    && <OAssess/>}
+        {tab === "alerts"    && <OAlerts/>}
       </div>
-
       <button onClick={() => setChatOpen(true)}
-        style={{ position:"fixed", bottom:24, right:24,
-          width:52, height:52, borderRadius:"50%",
+        style={{ position:"fixed", bottom:24, right:24, width:52, height:52, borderRadius:"50%",
           background:`linear-gradient(135deg,${T.olive},${T.brass})`,
           display:"flex", alignItems:"center", justifyContent:"center",
           boxShadow:"0 6px 24px rgba(184,146,47,0.4)", zIndex:50 }}>
         <Bot size={22} color="white"/>
       </button>
-
       {chatOpen && <ChatModal onClose={() => setChatOpen(false)} role="officer"/>}
     </div>
   );
@@ -544,17 +471,11 @@ function OOverview() {
           </div>
         ))}
       </div>
-
-      <div style={{ background:"white", borderRadius:10, padding:16, marginBottom:12,
-        boxShadow:"0 1px 6px rgba(0,0,0,0.06)" }}>
-        <div style={{ ...H, fontWeight:700, fontSize:14, marginBottom:12, color:T.ink }}>
-          8-Week Stress Trend
-        </div>
+      <div style={{ background:"white", borderRadius:10, padding:16, marginBottom:12, boxShadow:"0 1px 6px rgba(0,0,0,0.06)" }}>
+        <div style={{ ...H, fontWeight:700, fontSize:14, marginBottom:12, color:T.ink }}>8-Week Stress Trend</div>
         <LineChart pts={[38,44,41,52,48,58,55,62]} color={T.olive2}/>
       </div>
-
-      <div style={{ background:"white", borderRadius:10, padding:16, marginBottom:12,
-        boxShadow:"0 1px 6px rgba(0,0,0,0.06)" }}>
+      <div style={{ background:"white", borderRadius:10, padding:16, marginBottom:12, boxShadow:"0 1px 6px rgba(0,0,0,0.06)" }}>
         <div style={{ ...H, fontWeight:700, fontSize:14, marginBottom:12, color:T.ink }}>Risk by Rank</div>
         {[
           { label:"Constable",   pct:72, color:T.crimsonL },
@@ -567,13 +488,11 @@ function OOverview() {
             <span style={{ fontSize:11, color:"#6b7280", width:80, textAlign:"right", flexShrink:0 }}>{d.label}</span>
             <div style={{ flex:1, background:"#f3f4f6", borderRadius:4, height:20, overflow:"hidden" }}>
               <div style={{ height:"100%", width:`${d.pct}%`, background:d.color, borderRadius:4,
-                display:"flex", alignItems:"center", paddingLeft:8,
-                fontSize:10, fontWeight:600, color:"white" }}>{d.pct}%</div>
+                display:"flex", alignItems:"center", paddingLeft:8, fontSize:10, fontWeight:600, color:"white" }}>{d.pct}%</div>
             </div>
           </div>
         ))}
       </div>
-
       <div style={{ background:"rgba(192,57,43,0.07)", border:"1px solid rgba(192,57,43,0.25)",
         borderRadius:10, padding:"12px 16px", display:"flex", gap:10, alignItems:"flex-start" }}>
         <AlertTriangle size={18} color={T.crimsonL} style={{ flexShrink:0, marginTop:1 }}/>
@@ -624,33 +543,27 @@ function OPersonnel({ personnel }) {
           <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
             <thead>
               <tr style={{ background:"#f9fafb" }}>
-                {["ID","Service No","Rank","Unit","Risk Level","Stress Score"].map(h => (
+                {["ID","Service No","Rank","Unit","Risk","Score"].map(h => (
                   <th key={h} style={{ padding:"10px", textAlign:"left", fontSize:10,
                     color:"#9ca3af", fontWeight:600, borderBottom:"1px solid #f3f4f6" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {personnel && personnel.length > 0 ? (
-                personnel.map((p) => (
-                  <tr key={p.id} style={{ borderBottom:"1px solid #f9fafb" }}>
-                    <td style={{ padding:"10px", fontFamily:"monospace", fontSize:11, color:"#6b7280" }}>{p.id}</td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.service_no}</td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.rank}</td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.unit}</td>
-                    <td style={{ padding:"10px", fontWeight:600,
-                      color: p.risk_level === "High" ? T.crimsonL : p.risk_level === "Medium" ? "#D4870A" : T.olive2 }}>
-                      {p.risk_level}
-                    </td>
-                    <td style={{ padding:"10px", color:T.ink }}>{p.stress_score}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} style={{ padding:"20px", textAlign:"center", color:"#9ca3af" }}>
-                    No personnel records found.
+              {personnel && personnel.length > 0 ? personnel.map(p => (
+                <tr key={p.id} style={{ borderBottom:"1px solid #f9fafb" }}>
+                  <td style={{ padding:"10px", fontFamily:"monospace", fontSize:11, color:"#6b7280" }}>{p.id}</td>
+                  <td style={{ padding:"10px", color:T.ink }}>{p.service_no}</td>
+                  <td style={{ padding:"10px", color:T.ink }}>{p.rank}</td>
+                  <td style={{ padding:"10px", color:T.ink }}>{p.unit}</td>
+                  <td style={{ padding:"10px", fontWeight:600,
+                    color: p.risk_level === "High" ? T.crimsonL : p.risk_level === "Medium" ? "#D4870A" : T.olive2 }}>
+                    {p.risk_level}
                   </td>
+                  <td style={{ padding:"10px", color:T.ink }}>{p.stress_score}</td>
                 </tr>
+              )) : (
+                <tr><td colSpan={6} style={{ padding:"20px", textAlign:"center", color:"#9ca3af" }}>No records found.</td></tr>
               )}
             </tbody>
           </table>
@@ -668,14 +581,9 @@ function OAssess() {
 
   const calcScore = () => {
     let s = 0;
-    s += (v.dep / 36) * 28;
-    s += (Math.max(0, v.duty - 8) / 8) * 22;
-    s += (v.nights / 20) * 14;
-    s += v.fam * 10;
-    s += (v.inc / 10) * 14;
-    s -= ((v.sleep - 3) / 7) * 16;
-    s -= (v.soc / 10) * 8;
-    s -= (v.well / 10) * 10;
+    s += (v.dep / 36) * 28; s += (Math.max(0, v.duty - 8) / 8) * 22;
+    s += (v.nights / 20) * 14; s += v.fam * 10; s += (v.inc / 10) * 14;
+    s -= ((v.sleep - 3) / 7) * 16; s -= (v.soc / 10) * 8; s -= (v.well / 10) * 10;
     return Math.max(0, Math.min(100, Math.round(s)));
   };
 
@@ -684,19 +592,18 @@ function OAssess() {
     setTimeout(() => {
       const score = calcScore();
       const risk = score >= 60 ? "High" : score >= 35 ? "Medium" : "Low";
-      setResult({ score, risk });
-      setLoading(false);
+      setResult({ score, risk }); setLoading(false);
     }, 800);
   };
 
   const sliders = [
-    { k:"dep",   label:"Deployment Duration", min:1,  max:36, unit:" months" },
-    { k:"duty",  label:"Duty Hours / Day",    min:8,  max:16, step:0.5, unit:"h" },
-    { k:"nights",label:"Night Shifts / Month",min:0,  max:20, unit:"" },
-    { k:"sleep", label:"Sleep Hours / Night", min:3,  max:10, step:0.5, unit:"h" },
-    { k:"inc",   label:"Traumatic Incidents", min:0,  max:10, unit:"" },
-    { k:"soc",   label:"Social Support (1-10)",min:1, max:10, unit:"" },
-    { k:"well",  label:"Wellness Score (1-10)",min:1, max:10, unit:"" },
+    { k:"dep",   label:"Deployment Duration",  min:1,  max:36, unit:" months" },
+    { k:"duty",  label:"Duty Hours / Day",      min:8,  max:16, step:0.5, unit:"h" },
+    { k:"nights",label:"Night Shifts / Month",  min:0,  max:20, unit:"" },
+    { k:"sleep", label:"Sleep Hours / Night",   min:3,  max:10, step:0.5, unit:"h" },
+    { k:"inc",   label:"Traumatic Incidents",   min:0,  max:10, unit:"" },
+    { k:"soc",   label:"Social Support (1-10)", min:1,  max:10, unit:"" },
+    { k:"well",  label:"Wellness Score (1-10)", min:1,  max:10, unit:"" },
   ];
 
   const rColor = result ? (result.risk === "High" ? T.crimsonL : result.risk === "Medium" ? "#D4870A" : T.olive2) : T.olive2;
@@ -705,15 +612,12 @@ function OAssess() {
     <div style={{ padding:20 }}>
       <h2 style={{ ...H, color:T.ink, fontWeight:700, fontSize:20, marginBottom:4 }}>Individual Assessment</h2>
       <p style={{ fontSize:12, color:"#6b7280", marginBottom:20 }}>Run an AI risk prediction for any personnel profile</p>
-      <div style={{ background:"white", borderRadius:10, padding:18, marginBottom:16,
-        boxShadow:"0 1px 6px rgba(0,0,0,0.06)" }}>
+      <div style={{ background:"white", borderRadius:10, padding:18, marginBottom:16, boxShadow:"0 1px 6px rgba(0,0,0,0.06)" }}>
         {sliders.map(sl => (
           <div key={sl.k} style={{ marginBottom:16 }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
               <span style={{ fontSize:12, color:"#374151" }}>{sl.label}</span>
-              <span style={{ ...H, fontSize:15, fontWeight:700, color:T.olive2 }}>
-                {v[sl.k]}{sl.unit}
-              </span>
+              <span style={{ ...H, fontSize:15, fontWeight:700, color:T.olive2 }}>{v[sl.k]}{sl.unit}</span>
             </div>
             <input type="range" min={sl.min} max={sl.max} step={sl.step || 1}
               value={v[sl.k]} onChange={e => upd(sl.k, e.target.value)}
@@ -723,7 +627,7 @@ function OAssess() {
         <div style={{ marginBottom:16 }}>
           <div style={{ fontSize:12, color:"#374151", marginBottom:8 }}>Family Separated?</div>
           <div style={{ display:"flex", gap:8 }}>
-            {[{ val:0, l:"No" }, { val:1, l:"Yes — Separated" }].map(o => (
+            {[{ val:0, l:"No" }, { val:1, l:"Yes" }].map(o => (
               <button key={o.val} onClick={() => upd("fam", o.val)}
                 style={{ flex:1, padding:"8px", borderRadius:6, fontSize:12, fontWeight:500,
                   background: v.fam === o.val ? T.olive2 : "#f3f4f6",
@@ -749,11 +653,9 @@ function OAssess() {
             {result.risk} Risk &nbsp;·&nbsp; Score: {result.score}/100
           </div>
           <p style={{ fontSize:13, color:"#374151" }}>
-            {result.risk === "High"
-              ? "Immediate welfare counseling required. Consider deployment rotation and mandatory rest."
-              : result.risk === "Medium"
-              ? "Schedule a welfare check-in within 2 weeks. Review night shift and leave patterns."
-              : "Personnel is stable. Continue routine monitoring."}
+            {result.risk === "High" ? "Immediate welfare counseling required. Consider deployment rotation and mandatory rest."
+             : result.risk === "Medium" ? "Schedule a welfare check-in within 2 weeks. Review night shift and leave patterns."
+             : "Personnel is stable. Continue routine monitoring."}
           </p>
         </div>
       )}
@@ -797,9 +699,6 @@ function OAlerts() {
   );
 }
 
-/* ════════════════════════════════════════════════
-   PERSONNEL DASHBOARD
-════════════════════════════════════════════════ */
 function PersonnelDash({ go, data }) {
   const [tab, setTab] = useState("home");
   const [chatOpen, setChatOpen] = useState(false);
@@ -836,7 +735,6 @@ function PersonnelDash({ go, data }) {
           <button onClick={() => go("welcome")} style={{ color:T.slate }}><LogOut size={16}/></button>
         </div>
       </div>
-
       <div style={{ background:T.ink, display:"flex",
         borderBottom:"1px solid rgba(255,255,255,0.06)", padding:"0 4px" }}>
         {tabs.map(t => (
@@ -849,25 +747,21 @@ function PersonnelDash({ go, data }) {
           </button>
         ))}
       </div>
-
       <div style={{ flex:1, overflow:"auto" }}>
         {tab === "home"     && <PHome data={data} onAssess={() => setTab("assess")} result={stressResult} onChat={() => setChatOpen(true)} onFaceScan={() => setFaceOpen(true)}/>}
         {tab === "assess"   && <PAssess onResult={r => { setStressResult(r); setTab("home"); }}/>}
         {tab === "wellness" && <PWellness/>}
-        {tab === "support"  && <PSupport onChat={() => setChatOpen(true)}/>}
+        {tab === "support"  && <PSupport onChat={() => setChatOpen(true)} onFaceScan={() => setFaceOpen(true)}/>}
       </div>
-
       <button onClick={() => setChatOpen(true)}
-        style={{ position:"fixed", bottom:24, right:24,
-          width:52, height:52, borderRadius:"50%",
+        style={{ position:"fixed", bottom:24, right:24, width:52, height:52, borderRadius:"50%",
           background:"linear-gradient(135deg,#1B4F72,#2980B9)",
           display:"flex", alignItems:"center", justifyContent:"center",
           boxShadow:"0 6px 24px rgba(41,128,185,0.45)", zIndex:50 }}>
         <Bot size={22} color="white"/>
       </button>
-
       {chatOpen && <ChatModal onClose={() => setChatOpen(false)} role="personnel" stressResult={stressResult}/>}
-      {faceOpen && <FaceWellness onClose={() => setFaceOpen(false)} onResult={r => { setStressResult(r); setFaceOpen(false); }}/>}
+      {faceOpen && <FaceWellness onClose={() => setFaceOpen(false)} onResult={r => { setStressResult(r); setFaceOpen(false); setTab("home"); }}/>}
     </div>
   );
 }
@@ -882,24 +776,15 @@ function PHome({ data, onAssess, result, onChat, onFaceScan }) {
   return (
     <div style={{ padding:20 }}>
       <p style={{ fontSize:12, color:T.slate }}>Jai Hind, {data?.rank || "Constable"}</p>
-      <h2 style={{ ...H, color:T.paper, fontWeight:700, fontSize:22, marginBottom:2 }}>
-        Your Wellness Overview
-      </h2>
-      <p style={{ fontSize:11, color:"#4CAF50", marginBottom:16 }}>
-        Your data stays with you — only trends reach your unit
-      </p>
-
+      <h2 style={{ ...H, color:T.paper, fontWeight:700, fontSize:22, marginBottom:2 }}>Your Wellness Overview</h2>
+      <p style={{ fontSize:11, color:"#4CAF50", marginBottom:16 }}>Your data stays with you — only trends reach your unit</p>
       <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)",
         borderRadius:12, padding:20, marginBottom:16, textAlign:"center" }}>
         <svg width="220" height="130" viewBox="0 0 220 130" style={{ display:"block", margin:"0 auto" }}>
-          <path d="M20 110 A90 90 0 0 1 200 110" fill="none"
-            stroke="rgba(255,255,255,0.08)" strokeWidth="16" strokeLinecap="round"/>
-          <path d="M20 110 A90 90 0 0 1 200 110" fill="none"
-            stroke={color} strokeWidth="16" strokeLinecap="round"
-            strokeDasharray={`${pct * 283} 283`}/>
+          <path d="M20 110 A90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="16" strokeLinecap="round"/>
+          <path d="M20 110 A90 90 0 0 1 200 110" fill="none" stroke={color} strokeWidth="16" strokeLinecap="round" strokeDasharray={`${pct * 283} 283`}/>
           <g transform={`rotate(${angle},110,110)`}>
-            <line x1="110" y1="110" x2="110" y2="38"
-              stroke={T.paper} strokeWidth="2.5" strokeLinecap="round"/>
+            <line x1="110" y1="110" x2="110" y2="38" stroke={T.paper} strokeWidth="2.5" strokeLinecap="round"/>
           </g>
           <circle cx="110" cy="110" r="6" fill={T.paper}/>
         </svg>
@@ -913,13 +798,12 @@ function PHome({ data, onAssess, result, onChat, onFaceScan }) {
           </button>
         )}
       </div>
-
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
         {[
-          { icon:<Moon size={18}/>,      title:"Sleep",       sub:"Last: " + (result?.sleep || 6.5) + "h" },
-          { icon:<Activity size={18}/>,  title:"Resilience",  sub:"14-day streak" },
-          { icon:<TrendingUp size={18}/>,title:"Stress Trend",sub:"Improving" },
-          { icon:<CalendarClock size={18}/>, title:"Leave Due", sub:"8 days pending" },
+          { icon:<Moon size={18}/>,          title:"Sleep",       sub:"Last: " + (result?.sleep || 6.5) + "h" },
+          { icon:<Activity size={18}/>,      title:"Resilience",  sub:"14-day streak" },
+          { icon:<TrendingUp size={18}/>,    title:"Stress Trend",sub:"Improving" },
+          { icon:<CalendarClock size={18}/>, title:"Leave Due",   sub:"8 days pending" },
         ].map((t, i) => (
           <div key={i} style={{ background:"rgba(255,255,255,0.04)",
             border:"1px solid rgba(255,255,255,0.08)", borderRadius:10, padding:"14px" }}>
@@ -929,33 +813,29 @@ function PHome({ data, onAssess, result, onChat, onFaceScan }) {
           </div>
         ))}
       </div>
-
-      <div style={{ background:T.ink, border:"1px solid rgba(255,255,255,0.08)",
-        borderRadius:12, padding:16 }}>
+      <div style={{ background:T.ink, border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, padding:16 }}>
         <div style={{ ...H, color:T.brass, fontWeight:600, fontSize:13, marginBottom:12,
           display:"flex", alignItems:"center", gap:6 }}>
           <Compass size={14}/> Get Support Now
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8 }}>
-          <div onClick={() => alert("Appointment request sent to your unit Medical Officer.")} style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)",
-            borderRadius:8, padding:12, cursor:"pointer" }}>
+          <div onClick={() => alert("Appointment request sent to your unit Medical Officer.")}
+            style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)",
+              borderRadius:8, padding:12, cursor:"pointer" }}>
             <Stethoscope size={18} color={T.brass}/>
-            <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:12, marginTop:8, marginBottom:2 }}>
-              Talk to Your Doctor
-            </div>
+            <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:12, marginTop:8, marginBottom:2 }}>Talk to Your Doctor</div>
             <div style={{ fontSize:10, color:T.slate }}>Confidential, in-person</div>
           </div>
-          <div onClick={onChat} style={{ background:"rgba(41,128,185,0.1)", border:"1px solid rgba(41,128,185,0.3)",
-            borderRadius:8, padding:12, cursor:"pointer" }}>
+          <div onClick={onChat}
+            style={{ background:"rgba(41,128,185,0.1)", border:"1px solid rgba(41,128,185,0.3)",
+              borderRadius:8, padding:12, cursor:"pointer" }}>
             <Bot size={18} color="#5DADE2"/>
-            <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:12, marginTop:8, marginBottom:2 }}>
-              AI Health Advisor
-            </div>
+            <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:12, marginTop:8, marginBottom:2 }}>AI Health Advisor</div>
             <div style={{ fontSize:10, color:T.slate }}>Real-time, private chat</div>
           </div>
         </div>
         <button onClick={onFaceScan}
-          style={{ width:"100%", padding:"14px", borderRadius:8, marginBottom:0,
+          style={{ width:"100%", padding:"13px", borderRadius:8,
             background:"linear-gradient(135deg,#1B4F72,#4F6B4A)",
             border:"none", color:"white", fontSize:13, fontWeight:600, cursor:"pointer",
             display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
@@ -976,18 +856,12 @@ function PAssess({ onResult }) {
 
   const calcScore = () => {
     let s = 0;
-    s += (v.dep / 36) * 28;
-    s += (Math.max(0, v.duty - 8) / 8) * 22;
-    s += (v.nights / 20) * 14;
-    s += v.fam * 10;
-    s += (v.inc / 10) * 14;
+    s += (v.dep / 36) * 28; s += (Math.max(0, v.duty - 8) / 8) * 22;
+    s += (v.nights / 20) * 14; s += v.fam * 10; s += (v.inc / 10) * 14;
     s += (v.wstress / 10) * 10;
-    s -= ((v.sleep - 3) / 7) * 16;
-    s -= (v.soc / 10) * 8;
-    s -= (v.well / 10) * 10;
-    s -= (v.ex / 7) * 8;
-    s -= (v.mood / 5) * 10;
-    s -= (v.energy / 10) * 6;
+    s -= ((v.sleep - 3) / 7) * 16; s -= (v.soc / 10) * 8;
+    s -= (v.well / 10) * 10; s -= (v.ex / 7) * 8;
+    s -= (v.mood / 5) * 10; s -= (v.energy / 10) * 6;
     return Math.max(0, Math.min(100, Math.round(s)));
   };
 
@@ -1001,18 +875,17 @@ function PAssess({ onResult }) {
   };
 
   const moodEmoji = ["", "😞", "😕", "😐", "🙂", "😄"];
-
   const sections = [
-    { title:"Mood & Energy", fields:[
-      { k:"mood",    label:"Mood right now",      min:1, max:5,  fmt: x => moodEmoji[x] },
-      { k:"energy",  label:"Energy level (1-10)", min:1, max:10 },
-      { k:"sleep",   label:"Sleep last night",    min:3, max:10, step:0.5, unit:"h" },
+    { title:"Mood and Energy", fields:[
+      { k:"mood",    label:"Mood right now",       min:1, max:5,  fmt: x => moodEmoji[x] },
+      { k:"energy",  label:"Energy level (1-10)",  min:1, max:10 },
+      { k:"sleep",   label:"Sleep last night",     min:3, max:10, step:0.5, unit:"h" },
     ]},
     { title:"Work and Deployment", fields:[
       { k:"dep",     label:"Continuous deployment", min:0, max:36, unit:" months" },
       { k:"duty",    label:"Duty hours / day",      min:8, max:16, step:0.5, unit:"h" },
-      { k:"nights",  label:"Night shifts this month",min:0,max:20 },
-      { k:"wstress", label:"Work stress (1-10)",     min:1, max:10 },
+      { k:"nights",  label:"Night shifts this month",min:0, max:20 },
+      { k:"wstress", label:"Work stress (1-10)",    min:1, max:10 },
     ]},
     { title:"Mental Wellbeing", fields:[
       { k:"well",    label:"Overall wellness (1-10)", min:1, max:10 },
@@ -1026,7 +899,6 @@ function PAssess({ onResult }) {
     <div style={{ padding:20 }}>
       <h2 style={{ ...H, color:T.paper, fontWeight:700, fontSize:20, marginBottom:4 }}>Wellness Check-In</h2>
       <p style={{ fontSize:12, color:T.slate, marginBottom:20 }}>2 minutes &nbsp;·&nbsp; 100% anonymous &nbsp;·&nbsp; Not stored</p>
-
       <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)",
         borderRadius:10, padding:16, marginBottom:12 }}>
         <div style={{ fontSize:13, color:T.paper, marginBottom:8 }}>Family situation</div>
@@ -1042,13 +914,10 @@ function PAssess({ onResult }) {
           ))}
         </div>
       </div>
-
       {sections.map((sec, si) => (
         <div key={si} style={{ background:"rgba(255,255,255,0.04)",
           border:"1px solid rgba(255,255,255,0.08)", borderRadius:10, padding:16, marginBottom:12 }}>
-          <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:14, marginBottom:14 }}>
-            {sec.title}
-          </div>
+          <div style={{ ...H, color:T.paper, fontWeight:600, fontSize:14, marginBottom:14 }}>{sec.title}</div>
           {sec.fields.map(f => (
             <div key={f.k} style={{ marginBottom:16 }}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
@@ -1064,7 +933,6 @@ function PAssess({ onResult }) {
           ))}
         </div>
       ))}
-
       <button onClick={submit} disabled={loading}
         style={{ width:"100%", padding:"15px", borderRadius:10,
           background:"linear-gradient(135deg,#1B4F72,#2980B9)",
@@ -1078,12 +946,12 @@ function PAssess({ onResult }) {
 
 function PWellness() {
   const tips = [
-    { icon:"🌙", title:"Sleep Protocol", desc:"Aim for 7-8 hours. Even 20 extra minutes reduces cortisol by 18%." },
-    { icon:"🏃", title:"Move Daily", desc:"20 minutes of walking activates endorphins and reduces anxiety markers." },
+    { icon:"🌙", title:"Sleep Protocol",  desc:"Aim for 7-8 hours. Even 20 extra minutes reduces cortisol by 18%." },
+    { icon:"🏃", title:"Move Daily",      desc:"20 minutes of walking activates endorphins and reduces anxiety markers." },
     { icon:"🧘", title:"Breathing Drill", desc:"4-count inhale, 4-count hold, 4-count exhale. Do 5 cycles twice daily." },
-    { icon:"🤝", title:"Buddy System", desc:"Check in on one colleague today. Peer connection is the strongest resilience factor." },
-    { icon:"📵", title:"Digital Rest", desc:"30 minutes off screens before sleep improves deep sleep quality by 25%." },
-    { icon:"💧", title:"Hydration", desc:"Dehydration by 2% impairs cognitive performance. Keep a bottle at your post." },
+    { icon:"🤝", title:"Buddy System",    desc:"Check in on one colleague today. Peer connection is the strongest resilience factor." },
+    { icon:"📵", title:"Digital Rest",    desc:"30 minutes off screens before sleep improves deep sleep quality by 25%." },
+    { icon:"💧", title:"Hydration",       desc:"Dehydration by 2% impairs cognitive performance. Keep a bottle at your post." },
   ];
   return (
     <div style={{ padding:20 }}>
@@ -1092,8 +960,7 @@ function PWellness() {
       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
         {tips.map((t, i) => (
           <div key={i} style={{ background:"rgba(255,255,255,0.04)",
-            border:"1px solid rgba(255,255,255,0.08)",
-            borderRadius:10, padding:"14px 16px",
+            border:"1px solid rgba(255,255,255,0.08)", borderRadius:10, padding:"14px 16px",
             display:"flex", gap:14, alignItems:"flex-start" }}>
             <div style={{ fontSize:24, flexShrink:0 }}>{t.icon}</div>
             <div>
@@ -1107,8 +974,9 @@ function PWellness() {
   );
 }
 
-function PSupport({ onChat }) {
+function PSupport({ onChat, onFaceScan }) {
   const items = [
+    { icon:<span style={{fontSize:22}}>🧠</span>, title:"Face Wellness Scan",  desc:"AI-powered stress detection using facial expression analysis. Private, runs in your browser.", action:"Start Face Scan", onClick: onFaceScan },
     { icon:<Bot size={22} color="#5DADE2"/>,       title:"AI Health Advisor",   desc:"Instant, private, judgment-free wellness chat powered by Claude AI", action:"Start Chat", onClick: onChat },
     { icon:<Stethoscope size={22} color={T.brass}/>, title:"Talk to Your Doctor", desc:"Book a confidential session with your unit Medical Officer", action:"Request Appointment", onClick: () => alert("Appointment request sent to Medical Officer") },
     { icon:<Phone size={22} color="#E74C3C"/>,       title:"CAPF Helpline",       desc:"24/7 confidential mental health helpline for all CAPF personnel", action:"1800-XXX-XXXX", onClick: () => alert("Helpline: 1800-XXX-XXXX") },
@@ -1132,8 +1000,7 @@ function PSupport({ onChat }) {
             </div>
             <button onClick={it.onClick}
               style={{ width:"100%", padding:"9px", borderRadius:8, fontSize:13, fontWeight:600,
-                background:"rgba(255,255,255,0.05)",
-                border:"1px solid rgba(255,255,255,0.15)", color:T.paper }}>
+                background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.15)", color:T.paper }}>
               {it.action}
             </button>
           </div>
@@ -1143,9 +1010,6 @@ function PSupport({ onChat }) {
   );
 }
 
-/* ════════════════════════════════════════════════
-   AI CHAT MODAL
-════════════════════════════════════════════════ */
 function ChatModal({ onClose, role, stressResult }) {
   const [msgs, setMsgs] = useState([]);
   const [input, setInput] = useState("");
@@ -1154,11 +1018,11 @@ function ChatModal({ onClose, role, stressResult }) {
   const isOfficer = role === "officer";
 
   const sysPrompt = isOfficer
-    ? "You are an expert AI Welfare Advisor for CAPF (Central Armed Police Forces) officers in India. Help welfare officers understand stress patterns, plan interventions, and support battalion mental health. Be practical, evidence-based, and sensitive to the military context. Keep responses concise and actionable."
-    : `You are a compassionate AI Health Advisor for CAPF personnel in India. ${stressResult ? `The person's current stress score is ${stressResult.score}/100 (${stressResult.risk} risk level).` : ""} Provide warm, practical, culturally sensitive advice. Be empathetic, never clinical. Always recommend speaking to a Welfare Officer or Medical Officer for serious concerns. Keep responses to 2-3 short paragraphs.`;
+    ? "You are an expert AI Welfare Advisor for CAPF officers in India. Help welfare officers understand stress patterns, plan interventions, and support battalion mental health. Be practical and concise."
+    : `You are a compassionate AI Health Advisor for CAPF personnel in India. ${stressResult ? `The person's stress score is ${stressResult.score}/100 (${stressResult.risk} risk).` : ""} Provide warm, practical advice. Be empathetic. Keep responses to 2-3 short paragraphs.`;
 
   const welcome = isOfficer
-    ? "Hello, Officer. I am your AI Welfare Advisor. Ask me about stress indicators, intervention strategies, or how to support your unit's mental health."
+    ? "Hello, Officer. I am your AI Welfare Advisor. Ask me about stress indicators, intervention strategies, or how to support your unit."
     : `Jai Hind. I am your AI Health Advisor — completely private and confidential. ${stressResult ? `I can see your stress level is ${stressResult.risk} (${stressResult.score}/100). ` : ""}Tell me how you are feeling and I will help.`;
 
   useEffect(() => { setMsgs([{ role:"ai", text: welcome }]); }, []);
@@ -1170,38 +1034,28 @@ function ChatModal({ onClose, role, stressResult }) {
     setInput("");
     setMsgs(p => [...p, { role:"user", text: userMsg }]);
     setLoading(true);
-
     try {
-      const history = msgs.slice(1).map(m => ({
-        role: m.role === "user" ? "user" : "assistant",
-        content: m.text
-      }));
-      const res = await fetch("https://veersense-backend.onrender.com/chat", {
+      const history = msgs.slice(1).map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
-          messages: [...history, { role:"user", content: userMsg }],
-          context: {
-            role,
-            risk: stressResult?.risk,
-            score: stressResult?.score
-          }
+          model:"claude-sonnet-4-6", max_tokens:600,
+          system: sysPrompt,
+          messages: [...history, { role:"user", content: userMsg }]
         })
       });
-      if (!res.ok) throw new Error(`Backend responded ${res.status}`);
       const d = await res.json();
-      const reply = d.reply || getOfflineReply(stressResult?.risk);
-      setMsgs(p => [...p, { role:"ai", text: reply }]);
-    } catch (err) {
-      console.error("Chat backend error:", err);
+      setMsgs(p => [...p, { role:"ai", text: d.content?.[0]?.text || getOfflineReply(stressResult?.risk) }]);
+    } catch {
       setMsgs(p => [...p, { role:"ai", text: getOfflineReply(stressResult?.risk) }]);
     }
     setLoading(false);
   };
 
   const getOfflineReply = (risk) => {
-    if (risk === "High") return "You are carrying a very heavy load right now. Please speak to your Welfare Officer or Medical Officer today. You can also call the CAPF helpline 1800-XXX-XXXX which is confidential and available 24 hours a day. You do not have to carry this alone.";
-    if (risk === "Medium") return "Thank you for checking in. I would recommend protecting your sleep time, taking short breaks during duty, and connecting with a trusted colleague. Your Welfare Officer is also available if you want to talk.";
+    if (risk === "High") return "You are carrying a very heavy load. Please speak to your Welfare Officer or Medical Officer today. Call CAPF helpline 1800-XXX-XXXX — confidential and available 24/7.";
+    if (risk === "Medium") return "Thank you for checking in. Protect your sleep time, take short breaks during duty, and connect with a trusted colleague. Your Welfare Officer is also available.";
     return "You are doing well. Keep maintaining your healthy habits — sleep, exercise, and staying connected with your unit.";
   };
 
@@ -1215,21 +1069,15 @@ function ChatModal({ onClose, role, stressResult }) {
   const msgBg = isOfficer ? "white" : "rgba(255,255,255,0.06)";
   const inputBg = isOfficer ? "#F0EDE0" : "rgba(255,255,255,0.06)";
   const inputBorder = isOfficer ? "#C9C2A6" : "rgba(255,255,255,0.12)";
-  const userMsgBg = isOfficer
-    ? `linear-gradient(135deg,${T.olive},${T.olive2})`
-    : "linear-gradient(135deg,#1B4F72,#2980B9)";
-  const sendBg = isOfficer
-    ? `linear-gradient(135deg,${T.olive},${T.brass})`
-    : "linear-gradient(135deg,#1B4F72,#2980B9)";
+  const userMsgBg = isOfficer ? `linear-gradient(135deg,${T.olive},${T.olive2})` : "linear-gradient(135deg,#1B4F72,#2980B9)";
+  const sendBg = isOfficer ? `linear-gradient(135deg,${T.olive},${T.brass})` : "linear-gradient(135deg,#1B4F72,#2980B9)";
 
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.72)",
       backdropFilter:"blur(6px)", zIndex:200,
       display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
       <div style={{ width:"100%", maxWidth:480, background:bg, borderRadius:"16px 16px 0 0",
-        border:`1px solid ${border}`, maxHeight:"85vh",
-        display:"flex", flexDirection:"column" }}>
-
+        border:`1px solid ${border}`, maxHeight:"85vh", display:"flex", flexDirection:"column" }}>
         <div style={{ padding:"16px 20px", borderBottom:`1px solid ${border}`,
           display:"flex", alignItems:"center", gap:12 }}>
           <div style={{ width:36, height:36, borderRadius:"50%",
@@ -1239,30 +1087,25 @@ function ChatModal({ onClose, role, stressResult }) {
           </div>
           <div style={{ flex:1 }}>
             <div style={{ ...H, color:textMain, fontWeight:600, fontSize:15 }}>AI Health Advisor</div>
-            <div style={{ fontSize:11, color: isOfficer ? "#5A5138" : T.slate }}>
-              Powered by Claude &nbsp;·&nbsp; Private &amp; Encrypted
-            </div>
+            <div style={{ fontSize:11, color: isOfficer ? "#5A5138" : T.slate }}>Powered by Claude &nbsp;·&nbsp; Private &amp; Encrypted</div>
           </div>
           <button onClick={onClose} style={{ color: isOfficer ? "#5A5138" : T.slate }}><X size={20}/></button>
         </div>
-
-        <div style={{ flex:1, overflow:"auto", padding:16,
-          display:"flex", flexDirection:"column", gap:10 }}>
+        <div style={{ flex:1, overflow:"auto", padding:16, display:"flex", flexDirection:"column", gap:10 }}>
           {msgs.map((m, i) => (
             <div key={i} style={{ maxWidth:"85%", alignSelf: m.role === "user" ? "flex-end" : "flex-start" }}>
               <div style={{ padding:"11px 14px", borderRadius:12, fontSize:13, lineHeight:1.65,
                 background: m.role === "user" ? userMsgBg : msgBg,
                 color: m.role === "user" ? "white" : textMain,
                 border: m.role === "user" ? "none" : `1px solid ${border}` }}>
-                {m.role === "user" ? m.text : <MarkdownText text={m.text} />}
+                {m.text}
               </div>
             </div>
           ))}
           {loading && (
             <div style={{ maxWidth:"85%", alignSelf:"flex-start" }}>
-              <div style={{ padding:"11px 14px", borderRadius:12,
-                background:msgBg, border:`1px solid ${border}`,
-                display:"flex", gap:8, alignItems:"center" }}>
+              <div style={{ padding:"11px 14px", borderRadius:12, background:msgBg,
+                border:`1px solid ${border}`, display:"flex", gap:8, alignItems:"center" }}>
                 <Spin color={isOfficer ? T.olive2 : "#5DADE2"}/>
                 <span style={{ fontSize:12, color: isOfficer ? "#5A5138" : T.slate }}>Thinking...</span>
               </div>
@@ -1270,7 +1113,6 @@ function ChatModal({ onClose, role, stressResult }) {
           )}
           <div ref={bottomRef}/>
         </div>
-
         {msgs.length <= 1 && (
           <div style={{ padding:"0 16px 8px", display:"flex", gap:6, flexWrap:"wrap" }}>
             {quickQs.map((q, i) => (
@@ -1284,17 +1126,14 @@ function ChatModal({ onClose, role, stressResult }) {
             ))}
           </div>
         )}
-
-        <div style={{ padding:"12px 16px", borderTop:`1px solid ${border}`,
-          display:"flex", gap:10 }}>
+        <div style={{ padding:"12px 16px", borderTop:`1px solid ${border}`, display:"flex", gap:10 }}>
           <input value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && send()}
             placeholder="Type your message..."
             style={{ flex:1, padding:"10px 14px", borderRadius:8, fontSize:13,
               background:inputBg, border:`1px solid ${inputBorder}`, color:textMain }}/>
           <button onClick={send} disabled={loading || !input.trim()}
-            style={{ width:40, height:40, borderRadius:8, flexShrink:0,
-              background:sendBg,
+            style={{ width:40, height:40, borderRadius:8, flexShrink:0, background:sendBg,
               display:"flex", alignItems:"center", justifyContent:"center",
               opacity: loading || !input.trim() ? 0.5 : 1 }}>
             <Send size={16} color="white"/>
@@ -1305,9 +1144,6 @@ function ChatModal({ onClose, role, stressResult }) {
   );
 }
 
-/* ════════════════════════════════════════════════
-   UTILITY
-════════════════════════════════════════════════ */
 function Spin({ color="#B8922F" }) {
   return (
     <div style={{ width:16, height:16, flexShrink:0,
@@ -1315,71 +1151,4 @@ function Spin({ color="#B8922F" }) {
       borderTopColor:color, borderRadius:"50%",
       animation:"spin 0.7s linear infinite" }}/>
   );
-}
-function renderInlineBold(text, keyPrefix) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={`${keyPrefix}-b${i}`}>{part.slice(2, -2)}</strong>;
-    }
-    return <span key={`${keyPrefix}-t${i}`}>{part}</span>;
-  });
-}
-
-function isTableSeparator(line) {
-  return /^\|?[\s:|-]+\|?$/.test(line.trim()) && line.includes("-");
-}
-
-function parseTableRow(line) {
-  return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(c => c.trim());
-}
-
-function MarkdownText({ text }) {
-  if (!text) return null;
-  const lines = text.split("\n");
-  const blocks = [];
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    if (line.includes("|") && lines[i + 1] && isTableSeparator(lines[i + 1])) {
-      const header = parseTableRow(line);
-      i += 2;
-      const rows = [];
-      while (i < lines.length && lines[i].includes("|")) { rows.push(parseTableRow(lines[i])); i++; }
-      blocks.push(
-        <div key={`tbl-${blocks.length}`} style={{ overflowX:"auto", margin:"8px 0" }}>
-          <table style={{ borderCollapse:"collapse", width:"100%", fontSize:12 }}>
-            <thead><tr>{header.map((h, hi) => (
-              <th key={hi} style={{ textAlign:"left", padding:"6px 8px", borderBottom:"1.5px solid rgba(128,128,128,0.4)", fontWeight:700 }}>{h}</th>
-            ))}</tr></thead>
-            <tbody>{rows.map((r, ri) => (
-              <tr key={ri}>{r.map((cell, ci) => (
-                <td key={ci} style={{ padding:"6px 8px", borderBottom:"1px solid rgba(128,128,128,0.15)", verticalAlign:"top" }}>
-                  {renderInlineBold(cell, `${ri}-${ci}`)}
-                </td>
-              ))}</tr>
-            ))}</tbody>
-          </table>
-        </div>
-      );
-      continue;
-    }
-    if (/^[-*]\s+/.test(line.trim())) {
-      const items = [];
-      while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^[-*]\s+/, "")); i++; }
-      blocks.push(
-        <ul key={`ul-${blocks.length}`} style={{ margin:"6px 0", paddingLeft:18 }}>
-          {items.map((it, ii) => <li key={ii} style={{ marginBottom:3 }}>{renderInlineBold(it, `li-${ii}`)}</li>)}
-        </ul>
-      );
-      continue;
-    }
-    if (line.trim() === "") {
-      blocks.push(<div key={`sp-${blocks.length}`} style={{ height:6 }} />);
-      i++; continue;
-    }
-    blocks.push(<div key={`p-${blocks.length}`} style={{ marginBottom:2 }}>{renderInlineBold(line, `p-${blocks.length}`)}</div>);
-    i++;
-  }
-  return <div>{blocks}</div>;
 }
