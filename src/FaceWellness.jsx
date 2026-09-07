@@ -16,7 +16,7 @@ function expressionsToStress(expr) {
 export default function FaceWellness({ onClose, onResult }) {
   const videoRef=useRef(null), canvasRef=useRef(null), streamRef=useRef(null), intervalRef=useRef(null);
   const [phase,setPhase]=useState("loading");
-  const [loadMsg,setLoadMsg]=useState("Loading face detection AI...");
+  const [loadMsg,setLoadMsg]=useState("Initializing AI wellness scanner...");
   const [scanProgress,setScan]=useState(0);
   const [expressions,setExpr]=useState(null);
   const [wellness,setWellness]=useState(null);
