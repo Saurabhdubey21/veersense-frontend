@@ -1036,18 +1036,23 @@ function ChatModal({ onClose, role, stressResult }) {
     setLoading(true);
     try {
       const history = msgs.slice(1).map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("https://veersense-backend.onrender.com/chat", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
-          model:"claude-sonnet-4-6", max_tokens:600,
-          system: sysPrompt,
-          messages: [...history, { role:"user", content: userMsg }]
+          messages: [...history, { role:"user", content: userMsg }],
+          context: {
+            role: role,
+            risk: stressResult?.risk ?? null,
+            score: stressResult?.score ?? null
+          }
         })
       });
       const d = await res.json();
-      setMsgs(p => [...p, { role:"ai", text: d.content?.[0]?.text || getOfflineReply(stressResult?.risk) }]);
-    } catch {
+      if (!res.ok) throw new Error(JSON.stringify(d));
+      setMsgs(p => [...p, { role:"ai", text: d.reply }]);
+    } catch (e) {
+      console.error("Chat error:", e);
       setMsgs(p => [...p, { role:"ai", text: getOfflineReply(stressResult?.risk) }]);
     }
     setLoading(false);
